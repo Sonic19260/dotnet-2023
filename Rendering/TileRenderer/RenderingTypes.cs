@@ -108,36 +108,36 @@ public struct GeoFeature : BaseShape
     public GeoFeature(ReadOnlySpan<Coordinate> c, MapFeatureData feature)
     {
         IsPolygon = feature.Type == GeometryType.Polygon;
-        var naturalKey = feature.Properties.FirstOrDefault(x => x.Key == "natural").Value;
+        var naturalKey = feature.Properties.FirstOrDefault(x => x.Key == Keys.Natural).Value;
         Type = GeoFeatureType.Unknown;
-        if (naturalKey != null)
+        if (naturalKey != Values.NULL)
         {
-            if (naturalKey == "fell" ||
-                naturalKey == "grassland" ||
-                naturalKey == "heath" ||
-                naturalKey == "moor" ||
-                naturalKey == "scrub" ||
-                naturalKey == "wetland")
+            if (naturalKey == Values.Natural_Fell ||
+                naturalKey == Values.Natural_Grassland ||
+                naturalKey == Values.Natural_Heath ||
+                naturalKey == Values.Natural_Moor ||
+                naturalKey == Values.Natural_Scrub ||
+                naturalKey == Values.Natural_Wetland)
             {
                 Type = GeoFeatureType.Plain;
             }
-            else if (naturalKey == "wood" ||
-                     naturalKey == "tree_row")
+            else if (naturalKey == Values.Natural_Wood ||
+                     naturalKey == Values.Natural_Tree_Row)
             {
                 Type = GeoFeatureType.Forest;
             }
-            else if (naturalKey == "bare_rock" ||
-                     naturalKey == "rock" ||
-                     naturalKey == "scree")
+            else if (naturalKey == Values.Natural_Bare_Rock ||
+                     naturalKey == Values.Natural_Rock ||
+                     naturalKey == Values.Natural_Scree)
             {
                 Type = GeoFeatureType.Mountains;
             }
-            else if (naturalKey == "beach" ||
-                     naturalKey == "sand")
+            else if (naturalKey == Values.Natural_Beach ||
+                     naturalKey == Values.Natural_Sand)
             {
                 Type = GeoFeatureType.Desert;
             }
-            else if (naturalKey == "water")
+            else if (naturalKey == Values.Natural_Water)
             {
                 Type = GeoFeatureType.Water;
             }
@@ -202,7 +202,7 @@ public struct PopulatedPlace : BaseShape
         for (var i = 0; i < c.Length; i++)
             ScreenCoordinates[i] = new PointF((float)MercatorProjection.lonToX(c[i].Longitude),
                 (float)MercatorProjection.latToY(c[i].Latitude));
-        var name = feature.Properties.FirstOrDefault(x => x.Key == "name").Value;
+        var name = feature.Properties.FirstOrDefault(x => x.Key == Keys.Name).Value;
 
         if (feature.Label.IsEmpty)
         {
@@ -211,7 +211,7 @@ public struct PopulatedPlace : BaseShape
         }
         else
         {
-            Name = string.IsNullOrWhiteSpace(name) ? feature.Label.ToString() : name;
+            Name = "name";
             ShouldRender = true;
         }
     }
@@ -224,10 +224,10 @@ public struct PopulatedPlace : BaseShape
             return false;
         }
         foreach (var entry in feature.Properties)
-            if (entry.Key.StartsWith("place"))
+            if (entry.Key == Keys.Place || entry.Key == Keys.Placement || entry.Key == Keys.Placement_Forward)
             {
-                if (entry.Value.StartsWith("city") || entry.Value.StartsWith("town") ||
-                    entry.Value.StartsWith("locality") || entry.Value.StartsWith("hamlet"))
+                if (entry.Value == Values.Place_City || entry.Value == Values.Place_Town ||
+                    entry.Value == Values.Place_Locality || entry.Value == Values.Place_Hamlet)
                 {
                     return true;
                 }
@@ -264,11 +264,11 @@ public struct Border : BaseShape
         var foundLevel = false;
         foreach (var entry in feature.Properties)
         {
-            if (entry.Key.StartsWith("boundary") && entry.Value.StartsWith("administrative"))
+            if (entry.Key == Keys.Boundary && entry.Value == Values.Boundary_Administrative)
             {
                 foundBoundary = true;
             }
-            if (entry.Key.StartsWith("admin_level") && entry.Value == "2")
+            if (entry.Key == Keys.Admin_Level && entry.Value == Values.Admin_Level_Two)
             {
                 foundLevel = true;
             }

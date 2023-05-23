@@ -13,14 +13,16 @@ public static class TileRenderer
         BaseShape? baseShape = null;
 
         var featureType = feature.Type;
-        if (feature.Properties.Any(p => p.Key == "highway" && MapFeature.HighwayTypes.Any(v => p.Value.StartsWith(v))))
+        if (feature.Properties.Any(p => (p.Key == Keys.Highway) && 
+                                    MapFeature.HighwayTypes.Any(v => p.Value == v)))
         {
             var coordinates = feature.Coordinates;
             var road = new Road(coordinates);
             baseShape = road;
             shapes.Enqueue(road, road.ZIndex);
         }
-        else if (feature.Properties.Any(p => p.Key.StartsWith("water")) && feature.Type != GeometryType.Point)
+        else if (feature.Properties.Any(p => (p.Key == Keys.Water || p.Key == Keys.WaterWay || p.Key == Keys.Water_Point)) 
+                                        && feature.Type != GeometryType.Point)
         {
             var coordinates = feature.Coordinates;
 
@@ -42,28 +44,28 @@ public static class TileRenderer
             baseShape = popPlace;
             shapes.Enqueue(popPlace, popPlace.ZIndex);
         }
-        else if (feature.Properties.Any(p => p.Key.StartsWith("railway")))
+        else if (feature.Properties.Any(p => p.Key == Keys.Railway))
         {
             var coordinates = feature.Coordinates;
             var railway = new Railway(coordinates);
             baseShape = railway;
             shapes.Enqueue(railway, railway.ZIndex);
         }
-        else if (feature.Properties.Any(p => p.Key.StartsWith("natural") && featureType == GeometryType.Polygon))
+        else if (feature.Properties.Any(p => p.Key == Keys.Natural && featureType == GeometryType.Polygon))
         {
             var coordinates = feature.Coordinates;
             var geoFeature = new GeoFeature(coordinates, feature);
             baseShape = geoFeature;
             shapes.Enqueue(geoFeature, geoFeature.ZIndex);
         }
-        else if (feature.Properties.Any(p => p.Key.StartsWith("boundary") && p.Value.StartsWith("forest")))
+        else if (feature.Properties.Any(p => p.Key == Keys.Boundary && p.Value == Values.Boundary_Forest))
         {
             var coordinates = feature.Coordinates;
             var geoFeature = new GeoFeature(coordinates, GeoFeature.GeoFeatureType.Forest);
             baseShape = geoFeature;
             shapes.Enqueue(geoFeature, geoFeature.ZIndex);
         }
-        else if (feature.Properties.Any(p => p.Key.StartsWith("landuse") && (p.Value.StartsWith("forest") || p.Value.StartsWith("orchard"))))
+        else if (feature.Properties.Any(p => p.Key == Keys.Landuse && (p.Value == Values.Landuse_Forest || p.Value == Values.Landuse_Orchard)))
         {
             var coordinates = feature.Coordinates;
             var geoFeature = new GeoFeature(coordinates, GeoFeature.GeoFeatureType.Forest);
@@ -71,9 +73,9 @@ public static class TileRenderer
             shapes.Enqueue(geoFeature, geoFeature.ZIndex);
         }
         else if (feature.Type == GeometryType.Polygon && feature.Properties.Any(p
-                     => p.Key.StartsWith("landuse") && (p.Value.StartsWith("residential") || p.Value.StartsWith("cemetery") || p.Value.StartsWith("industrial") || p.Value.StartsWith("commercial") ||
-                                                        p.Value.StartsWith("square") || p.Value.StartsWith("construction") || p.Value.StartsWith("military") || p.Value.StartsWith("quarry") ||
-                                                        p.Value.StartsWith("brownfield"))))
+                     => p.Key == Keys.Landuse && (p.Value == Values.Landuse_Residential || p.Value == Values.Landuse_Cemetery || p.Value == Values.Landuse_Industrial || p.Value == Values.Landuse_Commercial ||
+                                                        p.Value == Values.Landuse_Square || p.Value == Values.Landuse_Construction || p.Value == Values.Landuse_Military || p.Value == Values.Landuse_Quarry ||
+                                                        p.Value == Values.Landuse_Brownfield)))
         {
             var coordinates = feature.Coordinates;
             var geoFeature = new GeoFeature(coordinates, GeoFeature.GeoFeatureType.Residential);
@@ -81,8 +83,8 @@ public static class TileRenderer
             shapes.Enqueue(geoFeature, geoFeature.ZIndex);
         }
         else if (feature.Type == GeometryType.Polygon && feature.Properties.Any(p
-                     => p.Key.StartsWith("landuse") && (p.Value.StartsWith("farm") || p.Value.StartsWith("meadow") || p.Value.StartsWith("grass") || p.Value.StartsWith("greenfield") ||
-                                                        p.Value.StartsWith("recreation_ground") || p.Value.StartsWith("winter_sports") || p.Value.StartsWith("allotments"))))
+                     => p.Key == Keys.Landuse && (p.Value == Values.Landuse_Farm || p.Value == Values.Landuse_Meadow || p.Value == Values.Landuse_Grass || p.Value == Values.Landuse_Greenfield ||
+                                                        p.Value == Values.Landuse_Recreation_Ground || p.Value == Values.Landuse_Winter_Sports || p.Value == Values.Landuse_Allotments)))
         {
             var coordinates = feature.Coordinates;
             var geoFeature = new GeoFeature(coordinates, GeoFeature.GeoFeatureType.Plain);
@@ -90,28 +92,32 @@ public static class TileRenderer
             shapes.Enqueue(geoFeature, geoFeature.ZIndex);
         }
         else if (feature.Type == GeometryType.Polygon &&
-                 feature.Properties.Any(p => p.Key.StartsWith("landuse") && (p.Value.StartsWith("reservoir") || p.Value.StartsWith("basin"))))
+                 feature.Properties.Any(p => p.Key == Keys.Landuse && (p.Value == Values.Landuse_Reservoir || p.Value == Values.Landuse_Basin)))
         {
             var coordinates = feature.Coordinates;
             var geoFeature = new GeoFeature(coordinates, GeoFeature.GeoFeatureType.Water);
             baseShape = geoFeature;
             shapes.Enqueue(geoFeature, geoFeature.ZIndex);
         }
-        else if (feature.Type == GeometryType.Polygon && feature.Properties.Any(p => p.Key.StartsWith("building")))
+        else if (feature.Type == GeometryType.Polygon && feature.Properties.Any(p => (p.Key == Keys.Building ||
+                                                                                        p.Key == Keys.Building_2020 ||
+                                                                                        p.Key == Keys.Building_Architecture ||
+                                                                                        p.Key == Keys.Building_Levels)))
         {
             var coordinates = feature.Coordinates;
             var geoFeature = new GeoFeature(coordinates, GeoFeature.GeoFeatureType.Residential);
             baseShape = geoFeature;
             shapes.Enqueue(geoFeature, geoFeature.ZIndex);
         }
-        else if (feature.Type == GeometryType.Polygon && feature.Properties.Any(p => p.Key.StartsWith("leisure")))
+        else if (feature.Type == GeometryType.Polygon && feature.Properties.Any(p => p.Key == Keys.Leisure))
         {
             var coordinates = feature.Coordinates;
             var geoFeature = new GeoFeature(coordinates, GeoFeature.GeoFeatureType.Residential);
             baseShape = geoFeature;
             shapes.Enqueue(geoFeature, geoFeature.ZIndex);
         }
-        else if (feature.Type == GeometryType.Polygon && feature.Properties.Any(p => p.Key.StartsWith("amenity")))
+        else if (feature.Type == GeometryType.Polygon && feature.Properties.Any(p => (p.Key == Keys.Amenity ||
+                                                                                        p.Key == Keys.Amenity_2020)))
         {
             var coordinates = feature.Coordinates;
             var geoFeature = new GeoFeature(coordinates, GeoFeature.GeoFeatureType.Residential);
@@ -165,5 +171,201 @@ public static class TileRenderer
         public float MaxX;
         public float MinY;
         public float MaxY;
+    }
+
+    public static Keys ConvertStringToUniqueKey(string str) {
+        if (str == "name") {
+            return Keys.Name;
+        }
+
+        if (str == "highway") {
+            return Keys.Highway;
+        }
+
+        if (str.StartsWith("water")) {
+            return Keys.Water;
+        }
+
+        if (str.StartsWith("boundary")) {
+            return Keys.Boundary;
+        }
+
+        if (str.StartsWith("admin_level")) {
+            return Keys.Admin_Level;
+        }
+
+        if (str.StartsWith("place")) {
+            return Keys.Place;
+        }
+
+        if (str.StartsWith("railway")) {
+            return Keys.Railway;
+        }
+
+        if (str.StartsWith("natural")) {
+            return Keys.Natural;
+        }
+
+        if (str.StartsWith("landuse")) {
+            return Keys.Landuse;
+        }
+
+        if (str.StartsWith("building")) {
+            return Keys.Building;
+        }
+
+        if (str.StartsWith("leisure")) {
+            return Keys.Leisure;
+        }
+
+        if (str.StartsWith("amenity")) {
+            return Keys.Amenity;
+        }
+
+        return Keys.NULL;
+    }
+
+    public static Values ConvertStringToUniqueValue(string key, string str) {
+        if (str.StartsWith("motorway")) {
+            return Values.Highway_Motorway;
+        }
+
+        if (str.StartsWith("trunk")) {
+            return Values.Highway_Trunk;
+        }
+
+        if (str.StartsWith("primary")) {
+            return Values.Highway_Primary;
+        }
+
+        if (str.StartsWith("secondary")) {
+            return Values.Highway_Secondary;
+        }
+
+        if (str.StartsWith("tertiary")) {
+            return Values.Highway_Tertiary;
+        }
+
+        if (str.StartsWith("unclassified")) {
+            return Values.Highway_Unclassified;
+        }
+
+        if (str.StartsWith("residential") && key == "highway") {
+            return Values.Highway_Residential;
+        }
+
+        if (str.StartsWith("road")) {
+            return Values.Highway_Road;
+        }
+
+        if (str == "2") {
+            return Values.Admin_Level_Two;
+        }
+
+        if (str.StartsWith("city")) {
+            return Values.Place_City;
+        }
+
+        if (str.StartsWith("town")) {
+            return Values.Place_Town;
+        }
+
+        if (str.StartsWith("locality")) {
+            return Values.Place_Locality;
+        }
+
+        if (str.StartsWith("hamlet")) {
+            return Values.Place_Hamlet;
+        }
+
+        if (str.StartsWith("forest") && key.StartsWith("boundary")) {
+            return Values.Boundary_Forest;
+        }
+
+        if (str.StartsWith("forest") && key.StartsWith("landuse")) {
+            return Values.Landuse_Forest;
+        }
+
+        if (str.StartsWith("orchard")) {
+            return Values.Landuse_Orchard;
+        }
+
+        if (str.StartsWith("residential") && key.StartsWith("landuse")) {
+            return Values.Landuse_Residential;
+        }
+
+        if (str.StartsWith("cemetery")) {
+            return Values.Landuse_Cemetery;
+        }
+
+        if (str.StartsWith("industrial")) {
+            return Values.Landuse_Industrial;
+        }
+
+        if (str.StartsWith("commercial")) {
+            return Values.Landuse_Commercial;
+        }
+
+        if (str.StartsWith("square")) {
+            return Values.Landuse_Square;
+        }
+
+        if (str.StartsWith("construction")) {
+            return Values.Landuse_Construction;
+        }
+
+        if (str.StartsWith("military")) {
+            return Values.Landuse_Military;
+        }
+
+        if (str.StartsWith("quarry")) {
+            return Values.Landuse_Quarry;
+        }
+
+        if (str.StartsWith("brownfield")) {
+            return Values.Landuse_Brownfield;
+        }
+
+        if (str.StartsWith("farm")) {
+            return Values.Landuse_Farm;
+        }
+
+        if (str.StartsWith("meadow")) {
+            return Values.Landuse_Meadow;
+        }
+
+        if (str.StartsWith("grass")) {
+            return Values.Landuse_Grass;
+        }
+
+        if (str.StartsWith("greenfield")) {
+            return Values.Landuse_Greenfield;
+        }
+
+        if (str.StartsWith("recreation_ground")) {
+            return Values.Landuse_Recreation_Ground;
+        }
+
+        if (str.StartsWith("winter_sports")) {
+            return Values.Landuse_Winter_Sports;
+        }
+
+        if (str.StartsWith("allotments")) {
+            return Values.Landuse_Allotments;
+        }
+
+        if (str.StartsWith("reservoir")) {
+            return Values.Landuse_Reservoir;
+        }
+
+        if (str.StartsWith("basin")) {
+            return Values.Landuse_Basin;
+        }
+
+        if (key == "name") {
+            return Values.Name_ID;
+        }
+
+        return Values.NULL;
     }
 }

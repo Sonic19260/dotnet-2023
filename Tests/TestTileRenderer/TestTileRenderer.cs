@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Mapster.Common.MemoryMappedTypes;
 using Mapster.Rendering;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -12,7 +14,8 @@ public class TestTileRenderer
     [TestMethod]
     public void TestRendering()
     {
-        var dataFile = new DataFile("MapData/andorra-10032022.bin");
+        Trace.Listeners.Add(new TextWriterTraceListener(Console.Out));
+        var dataFile = new DataFile("MapData/andorra.bin");
 
         var pixelBb = new TileRenderer.BoundingBox
         {
@@ -21,6 +24,7 @@ public class TestTileRenderer
             MaxX = float.MinValue,
             MaxY = float.MinValue
         };
+
         var shapes = new PriorityQueue<BaseShape, int>();
         dataFile.ForeachFeature(
             new BoundingBox(
