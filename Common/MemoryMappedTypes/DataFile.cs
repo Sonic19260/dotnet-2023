@@ -235,6 +235,7 @@ public unsafe class DataFile : IDisposable
 
         long lastFeatureID = 0;
         var fileReaderFeatures = new StreamReader("MapData/andorra_features.bin");
+        Console.WriteLine(Directory.GetCurrentDirectory());
         //using var fileWriterFeatures = new StreamWriter("feature_ids.txt");
         var tiles = TiligSystem.GetTilesForBoundingBox(b.MinLat, b.MinLon, b.MaxLat, b.MaxLon);
         for (var i = 0; i < tiles.Length; ++i)
